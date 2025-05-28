@@ -1,10 +1,10 @@
-import { AuthResolver } from '../graphql/resolvers/AuthResolver';
-import { db } from '../db/db';
+import { AuthResolver } from '../../graphql/resolvers/AuthResolver';
+import { db } from '../../db/db';
 import bcrypt from 'bcrypt';
-import { users } from '../db/schema';
+import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
-import { createToken, setAuthCookie } from '../middleware/auth';
-import { Context } from '../graphql/context';
+import { createToken, setAuthCookie } from '../../middleware/auth';
+import { Context } from '../../graphql/context';
 import { Request, Response } from 'express';
 
 // Explicitly declare Jest globals to fix TypeScript errors
@@ -15,7 +15,7 @@ declare const it: any;
 declare const expect: any;
 
 // Mock dependencies
-jest.mock('../db/db', () => ({
+jest.mock('../../db/db', () => ({
   db: {
     select: jest.fn(),
     insert: jest.fn(),
@@ -26,7 +26,7 @@ jest.mock('bcrypt', () => ({
   hash: jest.fn(),
 }));
 
-jest.mock('../middleware/auth', () => ({
+jest.mock('../../middleware/auth', () => ({
   createToken: jest.fn(),
   setAuthCookie: jest.fn(),
 }));
