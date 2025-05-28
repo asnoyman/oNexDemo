@@ -11,10 +11,14 @@ scalar DateTimeISO
 type Mutation {
   createUser(email: String!, firstName: String!, lastName: String!, password: String!, profilePictureUrl: String): User!
   deleteUser(id: Int!): Boolean!
+  login(email: String!, password: String!): User!
+  logout: Boolean!
+  register(email: String!, firstName: String!, lastName: String!, password: String!, profilePictureUrl: String): User!
   updateUser(firstName: String, id: Int!, lastName: String, profilePictureUrl: String): User
 }
 
 type Query {
+  me: User
   user(id: Int!): User
   userByEmail(email: String!): User
   users: [User!]!

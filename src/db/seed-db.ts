@@ -11,6 +11,7 @@ import {
   challengeDurationEnum
 } from './schema';
 import type { InferInsertModel } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
 
 // Create a PostgreSQL connection pool
 const pool = new Pool({
@@ -42,32 +43,37 @@ async function seedDatabase() {
     
     console.log('🌱 Inserting demo data...');
     
-    // Insert demo users
+    // Hash password for all users
+    const saltRounds = 10;
+    const plainPassword = 'password123';
+    const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+    
+    // Insert demo users with hashed passwords
     const demoUsers: User[] = [
       {
         email: 'john@example.com',
-        password: 'password123', // In a real app, this would be hashed
+        password: hashedPassword, // Now properly hashed
         firstName: 'John',
         lastName: 'Doe',
         profilePictureUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
       },
       {
         email: 'jane@example.com',
-        password: 'password123',
+        password: hashedPassword,
         firstName: 'Jane',
         lastName: 'Smith',
         profilePictureUrl: 'https://randomuser.me/api/portraits/women/2.jpg',
       },
       {
         email: 'mike@example.com',
-        password: 'password123',
+        password: hashedPassword,
         firstName: 'Mike',
         lastName: 'Johnson',
         profilePictureUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
       },
       {
         email: 'sarah@example.com',
-        password: 'password123',
+        password: hashedPassword,
         firstName: 'Sarah',
         lastName: 'Williams',
         profilePictureUrl: 'https://randomuser.me/api/portraits/women/4.jpg',
@@ -75,7 +81,7 @@ async function seedDatabase() {
     ];
     
     const insertedUsers = await db.insert(users).values(demoUsers).returning();
-    console.log(`✅ Inserted ${insertedUsers.length} users`);
+    console.log(`✅ Inserted ${insertedUsers.length} users with hashed passwords`);
     
     // Insert demo clubs
     const demoClubs: Club[] = [
