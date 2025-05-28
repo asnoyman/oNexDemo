@@ -19,6 +19,7 @@ export const clubs = pgTable("clubs", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
   description: text("description"),
+  isPrivate: boolean("is_private").default(false),
   logoUrl: varchar("logo_url", { length: 512 }),  // URL to image stored elsewhere
   coverImageUrl: varchar("cover_image_url", { length: 512 }),  // URL to image stored elsewhere
   createdAt: timestamp("created_at").defaultNow(),
@@ -31,6 +32,20 @@ export const clubMembers = pgTable("club_members", {
   userId: integer("user_id").references(() => users.id).notNull(),
   isAdmin: boolean("is_admin").default(false),  // Club admins can create challenges
   joinedAt: timestamp("joined_at").defaultNow(),
+}, (table) => {
+  return {
+    unq: unique().on(table.clubId, table.userId),
+  };
+});
+
+export const clubInvitations = pgTable("club_invitations", {
+  id: serial("id").primaryKey(),
+  clubId: integer("club_id").references(() => clubs.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  invitedBy: integer("invited_by").references(() => users.id).notNull(), // Admin who sent the invitation
+  invitedAt: timestamp("invited_at").defaultNow(),
+  accepted: boolean("accepted").default(false),
+  acceptedAt: timestamp("accepted_at"),
 }, (table) => {
   return {
     unq: unique().on(table.clubId, table.userId),
