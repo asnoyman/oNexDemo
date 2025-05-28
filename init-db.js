@@ -2,7 +2,12 @@ import { db } from './src/db.js';
 import { users, clubs, clubMembers, challenges, challengeEntries, challengeStatusEnum, challengeDurationEnum } from './src/schema.js';
 import pkg from 'pg';
 import { sql } from 'drizzle-orm';
-import { hashPassword } from './src/utils/auth.js';
+// Simple password hashing function for demo purposes
+const hashPassword = async (password) => {
+  // In a real application, you would use a proper hashing library
+  // This is just a placeholder since we removed bcryptjs
+  return `hashed_${password}`;
+};
 import dotenv from 'dotenv';
 
 // Load environment variables
