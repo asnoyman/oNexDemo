@@ -19,7 +19,6 @@ This project uses PostgreSQL with Drizzle ORM for database management. Follow th
    ```bash
    brew services start postgresql
    ```
-   ```
 
 2. **Configure Database Connection**
 
