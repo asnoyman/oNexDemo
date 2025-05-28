@@ -31,6 +31,21 @@ This project uses PostgreSQL with Drizzle ORM for database management. Follow th
    Replace `username` with your PostgreSQL username and set a secure JWT secret for authentication.
 
 
+### Updating the Database Schema
+
+Whenever changes are made to the database schema in `src/db/schema.ts`, you need to update the database:
+
+1. **Run the Update Schema Script**
+
+   ```bash
+   npm run db:update
+   ```
+
+   This script:
+   - Generates a migration for your schema changes
+   - Applies the migration to your database
+   - Pushes the schema to ensure synchronization
+
 ### Seeding the Database
 
 To populate the database with demo data:

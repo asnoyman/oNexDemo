@@ -5,6 +5,7 @@ import {
   users, 
   clubs, 
   clubMembers, 
+  clubInvitations,
   challenges, 
   challengeEntries,
   challengeStatusEnum,
@@ -25,6 +26,7 @@ const db = drizzle(pool);
 type User = InferInsertModel<typeof users>;
 type Club = InferInsertModel<typeof clubs>;
 type ClubMember = InferInsertModel<typeof clubMembers>;
+type ClubInvitation = InferInsertModel<typeof clubInvitations>;
 type Challenge = InferInsertModel<typeof challenges>;
 type ChallengeEntry = InferInsertModel<typeof challengeEntries>;
 
@@ -35,6 +37,7 @@ async function seedDatabase() {
     // Delete all data in reverse order of dependencies
     await db.delete(challengeEntries);
     await db.delete(challenges);
+    await db.delete(clubInvitations);
     await db.delete(clubMembers);
     await db.delete(clubs);
     await db.delete(users);
@@ -90,18 +93,28 @@ async function seedDatabase() {
         description: 'A club for running enthusiasts of all levels',
         logoUrl: 'https://placehold.co/400x400?text=Running+Club',
         coverImageUrl: 'https://placehold.co/1200x400?text=Running+Club+Cover',
+        isPrivate: false,
       },
       {
         name: 'Weightlifting Club',
         description: 'For those who love lifting weights and getting stronger',
         logoUrl: 'https://placehold.co/400x400?text=Weightlifting+Club',
         coverImageUrl: 'https://placehold.co/1200x400?text=Weightlifting+Club+Cover',
+        isPrivate: false,
       },
       {
         name: 'Yoga Club',
         description: 'Find your inner peace and flexibility',
         logoUrl: 'https://placehold.co/400x400?text=Yoga+Club',
         coverImageUrl: 'https://placehold.co/1200x400?text=Yoga+Club+Cover',
+        isPrivate: false,
+      },
+      {
+        name: 'Elite Runners',
+        description: 'A private club for serious runners only',
+        logoUrl: 'https://placehold.co/400x400?text=Elite+Runners',
+        coverImageUrl: 'https://placehold.co/1200x400?text=Elite+Runners+Cover',
+        isPrivate: true,
       },
     ];
     
@@ -155,10 +168,38 @@ async function seedDatabase() {
         userId: insertedUsers[0].id,
         isAdmin: false,
       },
+      
+      // Elite Runners (Private Club)
+      {
+        clubId: insertedClubs[3].id,
+        userId: insertedUsers[0].id,
+        isAdmin: true,
+      },
     ];
     
     const insertedClubMembers = await db.insert(clubMembers).values(demoClubMembers).returning();
     console.log(`✅ Inserted ${insertedClubMembers.length} club members`);
+    
+    // Create invitations for the private club (Elite Runners)
+    const demoClubInvitations: ClubInvitation[] = [
+      {
+        clubId: insertedClubs[3].id, // Elite Runners club
+        userId: insertedUsers[2].id, // Mike Johnson
+        invitedBy: insertedUsers[0].id, // John Doe (admin)
+        invitedAt: new Date(),
+        accepted: false,
+      },
+      {
+        clubId: insertedClubs[3].id, // Elite Runners club
+        userId: insertedUsers[3].id, // Sarah Williams
+        invitedBy: insertedUsers[0].id, // John Doe (admin)
+        invitedAt: new Date(),
+        accepted: false,
+      },
+    ];
+    
+    const insertedInvitations = await db.insert(clubInvitations).values(demoClubInvitations).returning();
+    console.log(`✅ Inserted ${insertedInvitations.length} club invitations`);
     
     // Get current date for challenge dates
     const today = new Date();
