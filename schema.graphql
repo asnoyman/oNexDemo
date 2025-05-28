@@ -9,12 +9,9 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTimeISO
 
 type Mutation {
-  createUser(email: String!, firstName: String!, lastName: String!, password: String!, profilePictureUrl: String): User!
-  deleteUser(id: Int!): Boolean!
   login(email: String!, password: String!): User!
   logout: Boolean!
   register(email: String!, firstName: String!, lastName: String!, password: String!, profilePictureUrl: String): User!
-  updateUser(firstName: String, id: Int!, lastName: String, profilePictureUrl: String): User
 }
 
 type Query {
