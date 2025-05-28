@@ -90,21 +90,6 @@ The project includes a GraphQL API built with Apollo Server and Express.
    
    This interactive environment allows you to explore and test the API.
 
-### Available GraphQL Operations
-
-- **Queries**:
-  - `users`: Get all users
-  - `user(id: Int!)`: Get user by ID
-  - `userByEmail(email: String!)`: Get user by email
-  - `me`: Get the currently authenticated user
-
-- **Mutations**:
-  - `createUser`: Register a new user
-  - `login`: Authenticate a user
-  - `logout`: Log out the current user
-  - `updateUser`: Update user information
-  - `deleteUser`: Delete a user
-
 ### Stopping PostgreSQL
 
 When you're done working with the database:
@@ -113,14 +98,68 @@ When you're done working with the database:
 brew services stop postgresql
 ```
 
-## Project Structure
+## Running Tests
 
-- `src/db/schema.ts` - Database schema definition
-- `src/db/seed-db.ts` - Script to seed the database with demo data
-- `src/graphql/types/` - GraphQL type definitions
-- `src/graphql/resolvers/` - GraphQL resolvers
-- `src/middleware/` - Express middleware including authentication
-- `src/server.ts` - Main server entry point
-- `drizzle/` - Contains generated SQL migration files
-- `drizzle.config.ts` - Drizzle configuration
-- `.env` - Environment variables including database connection string
+The project includes comprehensive tests for all functionality. Tests are written using Jest and are located in the `src/tests` directory.
+
+### Running All Tests
+
+To run all tests in the project:
+
+```bash
+npm test
+```
+
+### Running Specific Test Files
+
+To run tests for a specific component or feature:
+
+```bash
+npm test <test-file-or-directory>
+```
+
+Examples:
+
+```bash
+# Run all club-related tests
+npm test club_test
+
+# Run only club member tests
+npm test club_test/club-member.test.ts
+```
+
+### Test Coverage
+
+To generate a basic test coverage report:
+
+```bash
+npm test -- --coverage
+```
+
+This will create a report showing which parts of your code are covered by tests.
+
+### Detailed Coverage Reports
+
+For a more detailed coverage report with HTML output that you can view in a browser:
+
+```bash
+npm test -- --coverage --coverageReporters="html"
+```
+
+This will generate an HTML report in the `coverage/lcov-report` directory. Open `index.html` in this directory to view a detailed breakdown of coverage by file, including line-by-line highlighting of covered and uncovered code.
+
+You can also specify multiple reporter formats:
+
+```bash
+npm test -- --coverage --coverageReporters="text" --coverageReporters="html" --coverageReporters="lcov"
+```
+
+### Focusing Coverage on Specific Directories
+
+To focus coverage analysis on specific parts of your codebase:
+
+```bash
+npm test -- --coverage --collectCoverageFrom="src/graphql/resolvers/**/*.ts"
+```
+
+This example will only collect coverage information for TypeScript files in the resolvers directory.

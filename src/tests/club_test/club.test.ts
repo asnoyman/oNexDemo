@@ -68,7 +68,12 @@ describe('ClubResolver', () => {
   
   describe('createClub', () => {
     it('should create a club successfully when user is authenticated', async () => {
-      // Mock db.insert for clubs
+      // Mock db.transaction to execute the callback with a transaction object
+      const mockTx = {
+        insert: jest.fn()
+      };
+      
+      // Mock club data
       const mockClub = {
         id: 1,
         name: 'Test Club',
@@ -80,13 +85,7 @@ describe('ClubResolver', () => {
         updatedAt: new Date()
       };
       
-      (db.insert as any).mockImplementation(() => ({
-        values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([mockClub]),
-        }),
-      }));
-      
-      // Mock db.insert for club members (to add creator as admin)
+      // Mock club member data
       const mockClubMember = {
         id: 1,
         clubId: 1,
@@ -95,16 +94,25 @@ describe('ClubResolver', () => {
         joinedAt: new Date()
       };
       
-      // Second call to db.insert will be for club members
-      (db.insert as any).mockImplementationOnce(() => ({
-        values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([mockClub]),
-        }),
-      })).mockImplementationOnce(() => ({
-        values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([mockClubMember]),
-        }),
-      }));
+      // Setup transaction mock to execute the callback and return the mockClub
+      (db.transaction as jest.Mock).mockImplementation(async (callback) => {
+        // Setup the first insert (for clubs)
+        mockTx.insert.mockImplementationOnce(() => ({
+          values: jest.fn().mockReturnValue({
+            returning: jest.fn().mockResolvedValue([mockClub])
+          })
+        }));
+        
+        // Setup the second insert (for club members)
+        mockTx.insert.mockImplementationOnce(() => ({
+          values: jest.fn().mockReturnValue({
+            returning: jest.fn().mockResolvedValue([mockClubMember])
+          })
+        }));
+        
+        // Execute the callback with our mock transaction
+        return await callback(mockTx);
+      });
       
       // Call createClub method
       const result = await clubResolver.createClub(
@@ -117,9 +125,22 @@ describe('ClubResolver', () => {
       );
       
       // Assertions
-      expect(db.insert).toHaveBeenCalledWith(clubs);
-      expect(db.insert).toHaveBeenCalledWith(clubMembers);
-      expect(result).toEqual(mockClub);
+      expect(db.transaction).toHaveBeenCalled();
+      expect(mockTx.insert).toHaveBeenCalledTimes(2);
+      expect(mockTx.insert).toHaveBeenNthCalledWith(1, clubs);
+      expect(mockTx.insert).toHaveBeenNthCalledWith(2, clubMembers);
+      
+      // Verify the result matches our expected club
+      expect(result).toEqual({
+        id: 1,
+        name: 'Test Club',
+        description: 'A test club',
+        isPrivate: false, // Match the input parameter
+        logoUrl: 'https://example.com/logo.jpg',
+        coverImageUrl: 'https://example.com/cover.jpg',
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date)
+      });
     });
     
     it('should throw an error when user is not authenticated', async () => {
