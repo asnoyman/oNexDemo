@@ -10,7 +10,7 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 256 }).notNull(),
   firstName: varchar("firstName", { length: 100 }).notNull(),
   lastName: varchar("lastName", { length: 100 }).notNull(),
-  profilePictureUrl: varchar("profilePictureUrl", { length: 512 }),  // URL to image stored elsewhere
+  profilePictureUrl: varchar("profilePictureUrl", { length: 512 }),  // External image URL
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 });
@@ -20,8 +20,8 @@ export const clubs = pgTable("clubs", {
   name: varchar("name", { length: 256 }).notNull(),
   description: text("description"),
   isPrivate: boolean("isPrivate").default(false),
-  logoUrl: varchar("logoUrl", { length: 512 }),  // URL to image stored elsewhere
-  coverImageUrl: varchar("coverImageUrl", { length: 512 }),  // URL to image stored elsewhere
+  logoUrl: varchar("logoUrl", { length: 512 }),  // External logo image URL
+  coverImageUrl: varchar("coverImageUrl", { length: 512 }),  // External cover image URL
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 });
@@ -30,7 +30,7 @@ export const clubMembers = pgTable("clubMembers", {
   id: serial("id").primaryKey(),
   clubId: integer("clubId").references(() => clubs.id).notNull(),
   userId: integer("userId").references(() => users.id).notNull(),
-  isAdmin: boolean("isAdmin").default(false),  // Club admins can create challenges
+  isAdmin: boolean("isAdmin").default(false),  // Admin privileges for the club
   joinedAt: timestamp("joinedAt").defaultNow(),
 }, (table) => {
   return {
@@ -42,7 +42,7 @@ export const clubInvitations = pgTable("clubInvitations", {
   id: serial("id").primaryKey(),
   clubId: integer("clubId").references(() => clubs.id).notNull(),
   userId: integer("userId").references(() => users.id).notNull(),
-  invitedBy: integer("invitedBy").references(() => users.id).notNull(), // Admin who sent the invitation
+  invitedBy: integer("invitedBy").references(() => users.id).notNull(), // User ID who sent the invitation
   invitedAt: timestamp("invitedAt").defaultNow(),
   accepted: boolean("accepted").default(false),
   acceptedAt: timestamp("acceptedAt"),
@@ -54,18 +54,18 @@ export const clubInvitations = pgTable("clubInvitations", {
 
 export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
-  clubId: integer("clubId").references(() => clubs.id).notNull(),  // Challenge belongs to a club
+  clubId: integer("clubId").references(() => clubs.id).notNull(),  // Parent club ID
   title: varchar("title", { length: 256 }).notNull(),
   description: text("description").notNull(),
-  duration: challengeDurationEnum("duration").notNull(),  // daily, weekly, monthly
+  duration: challengeDurationEnum("duration").notNull(),  // Challenge timeframe
   status: challengeStatusEnum("status").default('active'),
   startDate: date("startDate").notNull(),
   endDate: date("endDate").notNull(),
-  createdById: integer("createdById").references(() => users.id).notNull(),  // Admin who created it
-  scoreType: varchar("scoreType", { length: 50 }).notNull(),  // e.g., "time", "reps", "weight", "distance"
-  scoreUnit: varchar("scoreUnit", { length: 20 }),  // e.g., "seconds", "kg", "km"
-  isHigherBetter: boolean("isHigherBetter").default(true),  // True if higher score is better (e.g., reps), false if lower is better (e.g., time)
-  topScores: json("topScores").default([]),  // Store top 3 scores as JSON array
+  createdById: integer("createdById").references(() => users.id).notNull(),
+  scoreType: varchar("scoreType", { length: 50 }).notNull(),  // Type of measurement (time, reps, weight, etc.)
+  scoreUnit: varchar("scoreUnit", { length: 20 }),  // Unit of measurement (seconds, kg, km, etc.)
+  isHigherBetter: boolean("isHigherBetter").default(true),  // Whether higher scores are better
+  topScores: json("topScores").default([]),  // Top scores stored as JSON array
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 });

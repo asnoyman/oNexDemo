@@ -171,13 +171,13 @@ export class ChallengeEntryResolver {
       challengeId: result.challengeId,
       userId: result.userId,
       score: result.score,
-      notes: result.notes || undefined, // Convert null to undefined
+      notes: result.notes || undefined, // Handle null values
       createdAt: result.createdAt ? new Date(result.createdAt) : new Date(),
       updatedAt: result.updatedAt ? new Date(result.updatedAt) : new Date()
     };
   }
 
-  // Get all entries for a challenge
+  // Retrieves all entries for a specific challenge
   @Query(() => [ChallengeEntry])
   async challengeEntries(
     @Arg('challengeId', () => Number) challengeId: number,
@@ -200,7 +200,7 @@ export class ChallengeEntryResolver {
     }));
   }
 
-  // Get user's entries for a challenge
+  // Retrieves the authenticated user's entries for a specific challenge
   @Query(() => [ChallengeEntry])
   async userChallengeEntries(
     @Arg('challengeId', () => Number) challengeId: number,
@@ -233,7 +233,7 @@ export class ChallengeEntryResolver {
     }));
   }
 
-  // Update a challenge entry
+  // Updates an existing challenge entry with new score or notes
   @Mutation(() => ChallengeEntry)
   async updateChallengeEntry(
     @Arg('id', () => Number) id: number,
@@ -283,16 +283,14 @@ export class ChallengeEntryResolver {
       .where(eq(challengeEntries.id, id))
       .returning();
     
-    // If score was updated, we might need to update the challenge's top scores
-    // This would require fetching the challenge and potentially updating its top scores
-    // For simplicity, we'll skip this part in this implementation
+    //TODO: Top scores are not automatically updated when entries are modified
     
     return {
       id: updatedEntry.id,
       challengeId: updatedEntry.challengeId,
       userId: updatedEntry.userId,
       score: updatedEntry.score,
-      notes: updatedEntry.notes || undefined, // Convert null to undefined
+      notes: updatedEntry.notes || undefined, // Handle null values
       createdAt: updatedEntry.createdAt ? new Date(updatedEntry.createdAt) : new Date(),
       updatedAt: updatedEntry.updatedAt ? new Date(updatedEntry.updatedAt) : new Date()
     };
