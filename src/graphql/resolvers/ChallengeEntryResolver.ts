@@ -60,107 +60,39 @@ export class ChallengeEntryResolver {
         })
         .returning();
       
-      // Check if we need to update the top scores
-      if (challenge.isHigherBetter) {
-        // For higher-is-better challenges
-        const scoreValue = parseFloat(score);
-        const topScores = challenge.topScores as TopScoreEntry[] || [];
-        
-        // Get user data for the top score entry
-        const userData = await tx.select()
-          .from(users)
-          .where(eq(users.id, userId));
-        
-        const userName = userData.length > 0 ? 
-          `${userData[0].firstName} ${userData[0].lastName}` : 
-          'Unknown User';
-        
-        // Check if this score should be in the top scores
-        let shouldUpdateTopScores = false;
-        
-        // If we have fewer than 5 top scores, add this one
-        if (topScores.length < 5) {
-          shouldUpdateTopScores = true;
-        } else {
-          // Check if this score is better than the lowest top score
-          const lowestTopScore = Math.min(...topScores.map(ts => parseFloat(ts.score)));
-          if (scoreValue > lowestTopScore) {
-            shouldUpdateTopScores = true;
-          }
-        }
-        
-        if (shouldUpdateTopScores) {
-          // Add this score to top scores
-          const newTopScoreEntry: TopScoreEntry = {
-            userId,
-            userName,
-            score,
-            achievedAt: new Date()
-          };
-          
-          // Add the new score and sort by score (descending)
-          const newTopScores = [...topScores, newTopScoreEntry]
-            .sort((a, b) => parseFloat(b.score) - parseFloat(a.score))
-            .slice(0, 5); // Keep only the top 5
-          
-          // Update the challenge with the new top scores
-          await tx.update(challenges)
-            .set({
-              topScores: newTopScores,
-              updatedAt: new Date()
-            })
-            .where(eq(challenges.id, challengeId));
-        }
-      } else {
-        // For lower-is-better challenges
-        const scoreValue = parseFloat(score);
-        const topScores = challenge.topScores as TopScoreEntry[] || [];
-        
-        // Get user data for the top score entry
-        const userData = await tx.select()
-          .from(users)
-          .where(eq(users.id, userId));
-        
-        const userName = userData.length > 0 ? 
-          `${userData[0].firstName} ${userData[0].lastName}` : 
-          'Unknown User';
-        
-        // Check if this score should be in the top scores
-        let shouldUpdateTopScores = false;
-        
-        // If we have fewer than 5 top scores, add this one
-        if (topScores.length < 5) {
-          shouldUpdateTopScores = true;
-        } else {
-          // Check if this score is better than the highest top score
-          const highestTopScore = Math.max(...topScores.map(ts => parseFloat(ts.score)));
-          if (scoreValue < highestTopScore) {
-            shouldUpdateTopScores = true;
-          }
-        }
-        
-        if (shouldUpdateTopScores) {
-          // Add this score to top scores
-          const newTopScoreEntry: TopScoreEntry = {
-            userId,
-            userName,
-            score,
-            achievedAt: new Date()
-          };
-          
-          // Add the new score and sort by score (ascending for lower-is-better)
-          const newTopScores = [...topScores, newTopScoreEntry]
-            .sort((a, b) => parseFloat(a.score) - parseFloat(b.score))
-            .slice(0, 5); // Keep only the top 5
-          
-          // Update the challenge with the new top scores
-          await tx.update(challenges)
-            .set({
-              topScores: newTopScores,
-              updatedAt: new Date()
-            })
-            .where(eq(challenges.id, challengeId));
-        }
+      // Update the topScores
+      const topScores = challenge.topScores as TopScoreEntry[] || [];
+      
+      // Get user data for the top score entry
+      const userData = await tx.select()
+        .from(users)
+        .where(eq(users.id, userId));
+      
+      const userName = userData.length > 0 ? 
+        `${userData[0].firstName} ${userData[0].lastName}` : 
+        'Unknown User';
+
+      // Add this score to top scores
+      const newTopScoreEntry: TopScoreEntry = {
+        userId,
+        userName,
+        score,
+        achievedAt: new Date()
+      };
+      
+      // Add the new score and sort by score
+      const newTopScores = [...topScores, newTopScoreEntry]
+        .sort((a, b) => parseFloat(b.score) - parseFloat(a.score) * (challenge.isHigherBetter ? 1 : -1))
+        .slice(0, 5); // Keep only the top 5
+
+      if (newTopScores.map((score) => score.userId).join(',') !== topScores.map((score) => score.userId).join(',')) {
+        // Update the challenge with the new top scores
+        await tx.update(challenges)
+          .set({
+            topScores: newTopScores,
+            updatedAt: new Date()
+          })
+          .where(eq(challenges.id, challengeId));
       }
       
       return entry;
