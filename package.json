@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "db:seed": "tsx src/db/seed-db.ts",
-    "db:update": "tsx src/db/update-schema.ts",
+    "db:seed": "tsx src/db/seedDB.ts",
+    "db:update": "tsx src/db/updateSchema.ts",
     "start": "tsx src/server.ts",
     "dev": "nodemon --exec tsx src/server.ts",
     "test": "jest",

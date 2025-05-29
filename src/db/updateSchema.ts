@@ -25,12 +25,11 @@ async function updateSchema() {
     await runCommand('npx drizzle-kit generate --config=./drizzle.config.ts');
     
     // Step 2: Apply migration
-    console.log('Applying migration...');
-    await migrate(db, { migrationsFolder: 'drizzle' });
-    
+    await runCommand('npx drizzle-kit up --config=./drizzle.config.ts');
+
     // Step 3: Push schema
     console.log('Pushing schema...');
-    await runCommand('npx drizzle-kit push --config=./drizzle.config.ts');
+    await runCommand('npx drizzle-kit push --config=./drizzle.config.ts --force');
     
     // Step 4: Launch Drizzle Studio
     console.log('\nTo view your updated schema in Drizzle Studio, run:');
