@@ -147,19 +147,3 @@ npm test -- --coverage --coverageReporters="html"
 ```
 
 This will generate an HTML report in the `coverage/lcov-report` directory. Open `index.html` in this directory to view a detailed breakdown of coverage by file, including line-by-line highlighting of covered and uncovered code.
-
-You can also specify multiple reporter formats:
-
-```bash
-npm test -- --coverage --coverageReporters="text" --coverageReporters="html" --coverageReporters="lcov"
-```
-
-### Focusing Coverage on Specific Directories
-
-To focus coverage analysis on specific parts of your codebase:
-
-```bash
-npm test -- --coverage --collectCoverageFrom="src/graphql/resolvers/**/*.ts"
-```
-
-This example will only collect coverage information for TypeScript files in the resolvers directory.
